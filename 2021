@@ -1,0 +1,142 @@
+var bricks = createGroup();
+
+createRowBrick(65,"blue");    //Grupo de Blocos.
+createRowBrick(65+29,"green");
+createRowBrick(65+29+29,"yellow");
+createRowBrick(65+29+29+29,"red");
+createRowBrick(65+29+29+29+29,"purple");
+
+
+var ball;
+var paddle;           //Bola e Raquete.
+
+
+ball = createSprite(200,250,20,20);
+ball.setAnimation("ball");
+ball.scale = 0.1;
+
+paddle = createSprite(200,375,50,20);
+paddle.setAnimation("paddle");
+paddle.scale = 0.2;
+//paddle.rotation;
+paddle.shapeColor = "white";
+
+
+
+var score = 0;  //Quantidade de vidas e pontuação.
+var lifes = 3;
+
+
+var gameState = "inicio";  //Início do jogo.
+
+createEdgeSprites(); //Criar bordas.
+
+function draw() {  //Função de desenhar.
+  background("black"); //Fundo do jogo.
+ 
+ stroke("orange");
+  fill("white");
+  textAlign(CENTER, CENTER);
+  textSize(30);                   //Textos.
+  text("SCORE: "+score,80,25);
+  text("VIDAS: "+lifes,320,25);
+  
+  ball.bounceOff(topEdge);
+  ball.bounceOff(leftEdge);   //Função que faz a Bola quicar nas bordas.
+  ball.bounceOff(rightEdge);
+  
+  paddle.x = World.mouseX;  //Raquete seguir mouse.
+  //paddle.x = ball.x;
+  
+  if (paddle.x<35) {
+    paddle.x = 35;        //Características da Raquete.
+  } if (paddle.x>365){
+    paddle.x = 365;
+  }
+  
+  if(gameState === "inicio"){ //Se o jogo estiver no Início.
+    
+    stroke("orange");
+    fill("white");
+    textAlign(CENTER, CENTER);  //Texto (Clique para começar).
+    textSize(20);
+    text("Clique para começar",200,220);
+    
+  }
+  if(ball.isTouching(bottomEdge)){
+    lifesOver();
+    ball.x = 200;         //Se a Bola bater na borda de baixo, ela volta a posição
+    ball.y = 250;         //incial e para de se mover.
+    ball.velocityX = 0;
+    ball.velocityY = 0;
+  }
+  
+  if(gameState === "fim"){ //Se o jogo está no Fim.
+   stroke("orange");
+   fill("white");
+   textAlign(CENTER, CENTER);  //Mostrar texto (GAME OVER).
+   textSize(50);
+   text("GAME OVER",200,305);
+  }
+  ball.bounceOff(bricks,brickHit); //Bola rebate nos blocos.
+  
+  if(ball.isTouching(paddle)){ //Som da Bola quando ela bate na Raquete.
+    playSound("sound://category_hits/vibrant_next_page_button.mp3");
+    ball.bounceOff(paddle);
+  }
+
+
+if(!bricks[0]){  //Se os blocos acabarem:
+  stroke("orange");
+  fill("white");
+  textAlign(CENTER, CENTER);
+  textSize(80);
+  text("YOU WIN",200,200);  //Texto (YOU WIN).
+  ball.velocityX = 0;  //Bola para de se mover.
+  ball.velocityY = 0;
+}
+  drawSprites();  //Desenhar Sprites.
+}
+
+function mousePressed() {  //Função para mouse clicar na tela:
+  if (gameState === "inicio"){  //Se o jogo estiver no Início:
+  ball.velocityX = 5.5;  //Velocidade da bola.
+  ball.velocityY = 5.5;
+  gameState = "jogar";  //Estado de jogo vai para "Jogar".
+  bricks.setVelocityYEach(0.2);
+  }}
+
+function brickHit(ball,brick){  //Som da bola batendo nos blocos:
+  playSound("sound://category_hits/vibrant_game_electro_hit_collect.mp3");
+  brick.destroy();  //Destruir Bloco.
+  score+=2;  //Pontuação.
+// if(ball.velocityX < 6){
+  // ball.velocityX += 1; 
+    //ball.velocityY += 1;
+  }//}
+
+function createRowBrick(y,color){  //Criar fileira de blocos:
+  for (var i = 0; i < 6; i++) {
+    var brick = createSprite(65+54*i,y,50,25);
+    brick.shapeColor = color;
+    bricks.add(brick);
+    
+    
+  }
+  
+}
+
+function lifesOver(){  //Fim de Jogo:
+  lifes--;
+  if (lifes>0){
+    gameState = "inicio";
+  } else {
+    gameState = "fim";
+  }
+  
+  //verificar se a vida é maior que 0
+  //voltar o estado do jogo para inicio se for maior que 0
+  //mudar o estado do jogo para fim se for menor que 0
+}
+  
+  //for (var i = 0; i < 400; i=i+20) { line(200,i,200,i+10); }
